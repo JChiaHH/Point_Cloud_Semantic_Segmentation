@@ -342,6 +342,7 @@ For PointTransformer:
 - Dataset preparation: [`dataset_prep_readme.md`](dataset_prep_readme.md)
 - Results and example outputs: [`ModelResults_README.md`](ModelResults_README.md)
 - Legacy training note: [`dataset_scripts/README_Final.txt`](dataset_scripts/README_Final.txt)
+- Downstream accessibility evaluation: [`RII_pipeline.md`](RII_pipeline.md)
 
 ## References
 

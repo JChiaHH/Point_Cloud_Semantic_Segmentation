@@ -25,6 +25,18 @@ In brief, the pipeline is:
 - if performance is weak, adjust the dataset, configs, class weights, or model hyperparameters and retrain
 - once the results are acceptable, finalize the model and continue with deployment or downstream evaluation
 
+## Downstream Application: Robot Inclusivity Index (RII)
+
+The labelled point clouds produced by this semantic segmentation pipeline feed directly into the **Robot Inclusivity Index (RII) Pipeline** — a separate PyQt5 desktop application that evaluates how accessible an indoor environment is to a mobile robot.
+
+The RII pipeline uses the per-point semantic labels to:
+
+- **Measure floor reachability** (RII Horizontal) — project the 3D point cloud into a 2D occupancy map, inflate obstacles by the robot's footprint, and compute what fraction of the floor the robot can physically reach.
+- **Measure wall-surface reachability** (RII Vertical) — cast rays from accessible floor positions toward walls in 3D to determine how much wall surface a robot-mounted tool (e.g. a paint roller) can reach.
+- **Identify accessibility bottlenecks** — cross-reference the semantic labels with inaccessible areas to rank which object classes (scaffold, stored equipment, movable objects, etc.) block the most floor area, and which individual objects should be relocated first for the greatest accessibility gain.
+
+For the full methodology, parameters, and mathematics, see [`RII_pipeline.md`](RII_pipeline.md).
+
 ## Robot Platform
 
 The robot platform used to collect the real-world point cloud dataset for this workflow is shown below.
@@ -37,6 +49,7 @@ For the detailed step-by-step workflow, use these documents after completing the
 - [`dataset_prep_readme.md`](dataset_prep_readme.md)
 - [`ModelTraining_README.md`](ModelTraining_README.md)
 - [`ModelResults_README.md`](ModelResults_README.md)
+- [`RII_pipeline.md`](RII_pipeline.md)
 
 ## Training Classes
 
@@ -449,4 +462,6 @@ python "$OPEN3D_ML_ROOT/scripts/run_pipeline.py" torch \
 ## Next Step
 
 After you finish the device setup in this README, continue with [`dataset_prep_readme.md`](dataset_prep_readme.md) to prepare the dataset for training.
+
+For downstream accessibility evaluation using the trained models, see [`RII_pipeline.md`](RII_pipeline.md).
 

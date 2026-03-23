@@ -75,6 +75,7 @@ Generalization example:
 - Device / environment setup: [`README.md`](README.md)
 - Dataset preparation: [`dataset_prep_readme.md`](dataset_prep_readme.md)
 - Training and inference commands: [`ModelTraining_README.md`](ModelTraining_README.md)
+- Downstream accessibility evaluation: [`RII_pipeline.md`](RII_pipeline.md)
 
 ## References
 
