@@ -56,35 +56,11 @@ mobile robot (or any other 3D scanning device). Point clouds can be raw
 
 ### End-to-end data flow
 
-```
- 3D LiDAR scan (.pcd / .ply)
-         │
-         ▼
- ┌───────────────────────────────────────────────────┐
- │  (Optional) Semantic Segmentation                 │
- │  KPConv / RandLA-Net / PointTransformer           │
- │  → per-point class labels (19 classes)            │
- └───────────────────────┬───────────────────────────┘
-                         │
-         ┌───────────────┴───────────────┐
-         ▼                               ▼
-   Raw point cloud              Labelled point cloud
-         │                               │
-         ▼                               ▼
- ┌───────────────────────────────────────────────────┐
- │              RII Pipeline (this tool)              │
- │                                                   │
- │  Step 1  Select point cloud                       │
- │  Step 2  Generate 2D occupancy maps               │
- │  Step 3  RII Horizontal (floor reachability)      │
- │  Step 4  Semantic gap analysis (needs labels)     │
- │  Step 5  RII Vertical + Combined score            │
- └───────────────────────────────────────────────────┘
-         │
-         ▼
-   Accessibility scores, coverage maps,
-   removal-candidate rankings
-```
+The pipeline is divided into two stages. Stage 1 uses only the raw point cloud
+geometry to compute horizontal floor accessibility. Stage 2 adds semantic
+labels to enable gap analysis, wall detection, and the combined RII score.
+
+![RII pipeline flowchart](images/RII/RII_Flowchart.png)
 
 ## Quick Start
 
@@ -141,6 +117,8 @@ results of the previous one.
 Browse for a `.pcd` or `.ply` file. An optional pre-clean step can filter
 noise before map generation.
 
+![Example raw 3D point cloud loaded in the pipeline](images/RII/3D_Raw.png)
+
 ### Step 2 — Generate 2D Map
 
 Projects the 3D point cloud into a 2D ROS Nav2 occupancy grid. Three map
@@ -155,6 +133,11 @@ layers are produced:
 3. **Floor sidecar** (`map_floor.pgm`) — ground-plane cells only.
 
 Together these layers define where the robot can and cannot drive.
+
+| | |
+|---|---|
+| ![Obstacle map](images/RII/ObstacleMap.png) | ![Traversable ground map](images/RII/TraversibleGround.png) |
+| Obstacle map — black cells are occupied, white cells are free. | Traversable ground map — white cells are driveable floor. |
 
 | Parameter | Default | Range | Description |
 |-----------|---------|-------|-------------|
@@ -196,6 +179,8 @@ The pipeline computes this for two robot sizes side-by-side:
 - **Actual robot** — the real platform (default 0.35 m radius / 0.60 × 0.40 m
   rectangle). The gap between reference and actual accessibility quantifies
   how much the robot's physical size limits it.
+
+![RII Horizontal result — cyan regions show accessible floor area after obstacle inflation](images/RII/RII_Horizontal.png)
 
 **Robot footprint parameters** (separate Reference and Actual):
 
@@ -259,6 +244,8 @@ with the inaccessible areas identified in Step 3. This produces:
   area gain: the increase in accessible floor area that would result from
   removing that single object.
 
+![RII Horizontal Analysis — semantic gap analysis showing removal candidates and optimised RII improvement (36.3% → 53.3%)](images/RII/RII_Horizontal_Optimised.png)
+
 **Semantic label taxonomy:**
 
 The pipeline uses 19 semantic classes, grouped into four fixation levels that
@@ -294,6 +281,8 @@ reach the adjacent wall surface with its end effector.
 
 The algorithm works as follows:
 
+![Wall segment detection — detected wall surfaces highlighted in pink on the 3D point cloud](images/RII/DetectWalls.png)
+
 1. **Voxelization** — The 3D point cloud is discretised into a uniform voxel
    grid. Each voxel is classified as *wall* (if it falls within a configurable
    height band above the floor and carries a wall label), *obstacle*, or
@@ -309,6 +298,8 @@ The algorithm works as follows:
 4. **Metrics** — Three complementary metrics capture different aspects of
    vertical reachability (see the RII Mathematics section below for formal
    definitions).
+
+![RII Vertical result — colour-coded wall reachability with Task Coverage Rate of 87.3%, combined with horizontal and vertical scores](images/RII/RII_Vertical.png)
 
 **Wall height band:**
 

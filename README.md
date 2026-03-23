@@ -29,11 +29,18 @@ In brief, the pipeline is:
 
 The labelled point clouds produced by this semantic segmentation pipeline feed directly into the **Robot Inclusivity Index (RII) Pipeline** — a separate PyQt5 desktop application that evaluates how accessible an indoor environment is to a mobile robot.
 
+![RII pipeline flowchart](images/RII/RII_Flowchart.png)
+
 The RII pipeline uses the per-point semantic labels to:
 
 - **Measure floor reachability** (RII Horizontal) — project the 3D point cloud into a 2D occupancy map, inflate obstacles by the robot's footprint, and compute what fraction of the floor the robot can physically reach.
 - **Measure wall-surface reachability** (RII Vertical) — cast rays from accessible floor positions toward walls in 3D to determine how much wall surface a robot-mounted tool (e.g. a paint roller) can reach.
 - **Identify accessibility bottlenecks** — cross-reference the semantic labels with inaccessible areas to rank which object classes (scaffold, stored equipment, movable objects, etc.) block the most floor area, and which individual objects should be relocated first for the greatest accessibility gain.
+
+| | |
+|---|---|
+| ![RII Horizontal](images/RII/RII_Horizontal.png) | ![RII Horizontal Optimised](images/RII/RII_Horizontal_Optimised.png) |
+| Horizontal accessibility — cyan shows reachable floor area. | Semantic gap analysis — removal candidates ranked by area gain (36.3% → 53.3%). |
 
 For the full methodology, parameters, and mathematics, see [`RII_pipeline.md`](RII_pipeline.md).
 
